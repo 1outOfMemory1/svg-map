@@ -6,7 +6,7 @@ Vue.use(VueRouter)
 const routes = [
 
   {
-    path: '/svg_map',
+    path: '/',
     name: 'svg_map',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route

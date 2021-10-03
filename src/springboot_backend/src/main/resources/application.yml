@@ -1,0 +1,9 @@
+
+
+jwt:
+  tokenHeader: mytoken
+  secret: mysecret4445
+  expiration: 360000
+  tokenHead: aaaa
+server:
+  port: 9999

@@ -62,7 +62,7 @@ async function draw(data,width,height) {
         return console.error(e)
     }
 
-    console.log('topo_data', topo_data)
+    // console.log('topo_data', topo_data)
     console.log('geo_data', geo_data)
 
     // 如果只得到 TopoJSON 格式数据，可以使用 topojson.feature 来转换得到 GeoJSON
@@ -72,12 +72,12 @@ async function draw(data,width,height) {
 
     // 获取最外层轮廓路径的 GeoJSON
     const geo_border = topojson.merge(topo_data, topo_data.objects.geo.geometries)
-    console.log('geo_border', geo_border)
+    // console.log('geo_border', geo_border)
 
     // 获取不包含最外层轮廓的其余边界路径的 GeoJSON，得到
     // 的是一个单一的路径，不存在边界重叠问题
     const geo_interiors = topojson.mesh(topo_data, topo_data.objects.geo, (a, b) => a !== b)
-    console.log('geo_interiors', geo_interiors)
+    // console.log('geo_interiors', geo_interiors)
 
     /*******      2、创建和配置路径生成器函数       *******/
 
@@ -190,7 +190,7 @@ async function draw(data,width,height) {
             const el = d3.select(this)
             // d.properties中包含该区域的中心点和名字
             // 通过projection将地理坐标转换成绘图的平面坐标
-            console.log(d.properties.centroid)
+            // console.log(d.properties.centroid)
             let [x,y] = [5000,5000]
 
             if(typeof (d.properties.centroid) !== "undefined"){
@@ -210,19 +210,19 @@ async function draw(data,width,height) {
             // 添加地名文字
             el
                 .append('text')
-                .attr('x', x )
+                .attr('x', x -10 )
                 .attr('y', y -15)
                 .attr('dy', '0.35em')
                 .text(d.properties.name)
         })
 
     let path_list = document.getElementsByClassName("area")
-    console.log(path_list)
+    // console.log(path_list)
     for(let i=0;i<path_list.length;i++){
         // console.log(path_list[i])
         // path_list[i].getAttribute()
         path_list[i].addEventListener("click", (e)=>{
-            console.log(e.target.getAttribute("name"))
+            // console.log(e.target.getAttribute("name"))
             let svg_div = document.getElementById("svg_map_div")
             let childs =svg_div.childNodes
             for(let i = childs.length - 1; i >= 0; i--) {
@@ -235,6 +235,37 @@ async function draw(data,width,height) {
             })
         })
     }
+
+
+
+    // 可缩放
+    // 监听滚轮事件 按照比例
+    let svgPanel = document.getElementById("svg_map_div")
+    console.log(svgPanel)
+    // console.log(svgPanel[0])
+    // var gridSvg = document.getElementById('grid');
+    var scale = 1;
+    function zoom(num, e) {
+        // alert(1)
+        console.log(scale)
+        scale *= num;
+        svgPanel.style.transform ='scale(' + scale + ')';
+    }
+    // 绑定鼠标滑轮
+    // if (svgPanel.addEventListener) {
+        svgPanel.addEventListener('DOMMouseScroll', scrollZoom, false);
+    // }
+    svgPanel.onmousewheel = document.onmousewhell = scrollZoom;
+    /*
+    * 滑轮滚动处理事件，向上滚动放大
+    * {Object} e 事件对象
+    */
+    function scrollZoom(e) {
+        e = e || window.event;
+        // e.detail用来兼容FireFox
+        e.wheelDelta > 0 || e.detail > 0 ? zoom(1.06, e) : zoom(0.94, e);
+    }
+
 
 }
 

@@ -1,8 +1,7 @@
 <template>
-  <div>
-    <button >返回上一层</button>
-    <div id="svg_map_div" style="width: 1000px;height: 1000px">
-
+  <div style="width: 800px;height: 800px;overflow: hidden">
+    <button id="return_lower_level" @click="return_lower_level">返回上一层</button>
+    <div id="svg_map_div" style="width: 800px;height: 800px;">
     </div>
   </div>
 
@@ -33,15 +32,14 @@ export default {
     })
   },
   methods:{
+    return_lower_level(){
 
+    }
   }
 }
 </script>
 
 <style  lang="scss">
-svg {
-  border: 1px solid #ccc;
-}
 
 .area:hover {
   fill: orange;

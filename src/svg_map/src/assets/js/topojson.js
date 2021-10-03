@@ -277,7 +277,7 @@
             polygons = [],
             groups = [];
 
-        console.log(geometry)
+        // console.log(geometry)
         objects.forEach(geometry);
 
         function geometry(o) {

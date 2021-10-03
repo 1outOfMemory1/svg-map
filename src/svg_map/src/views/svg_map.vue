@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 800px;height: 800px;overflow: hidden">
+  <div  style="width: 800px;height: 800px;overflow: hidden;position:relative">
     <button id="return_lower_level" @click="return_lower_level">返回上一层</button>
     <div id="svg_map_div" style="width: 800px;height: 800px;">
     </div>
@@ -41,9 +41,13 @@ export default {
 
 <style  lang="scss">
 
-.area:hover {
+.area_overlay:hover {
   fill: orange;
   stroke: yellow;
   opacity: 1;
+}
+
+#svg_map_div {
+  position: absolute;
 }
 </style>

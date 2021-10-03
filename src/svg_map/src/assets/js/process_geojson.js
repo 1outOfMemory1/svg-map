@@ -29,6 +29,14 @@ let config = {
 */
 
 async function draw(data,width,height) {
+    let svg_div = document.getElementById("svg_map_div")
+    let childs =svg_div.childNodes
+    for(let i = childs.length - 1; i >= 0; i--) {
+        // alert(childs[i].nodeName);
+        svg_div.removeChild(childs[i]);
+    }
+
+
     const margin = {
         top: 10,
         right: 10,
@@ -41,6 +49,7 @@ async function draw(data,width,height) {
     const svg = box.append('svg')
         .attr('width', width)
         .attr('height', height)
+        .attr('id', "svg_map")
 
     const g = svg.append('g')
         .attr('transform', `translate(${margin.top}, ${margin.left})`)
@@ -130,21 +139,21 @@ async function draw(data,width,height) {
         .attr("code",d => d.properties.adcode)
 
     // // 绘制第四层交互层，因为容器层级顺序已定，所以这段代码顺序不影响
-    // area_overlays_layer
-    //     .selectAll('path')
-    //     .data(geo_data.features)
-    //     .enter()
-    //     .append('path')
-    //     .attr('class', 'area_overlay')
-    //     .attr('d', path)
-    //     .attr('stroke', 'none')
-    //     .attr('fill', 'skyblue')
-    //     .attr('opacity', 0)
-    //     .attr("name",d => d.properties.name)
-    //     // 提示文字
-    //     .append('title')
-    //     // 数据中每个几何对象都包含 properties 属性
-    //     .text(d => d.properties.name)
+    area_overlays_layer
+        .selectAll('path')
+        .data(geo_data.features)
+        .enter()
+        .append('path')
+        .attr('class', 'area_overlay')
+        .attr('d', path)
+        .attr('stroke', 'none')
+        .attr('fill', 'skyblue')
+        .attr('opacity', 0)
+        .attr("name",d => d.properties.name)
+        // 提示文字
+        .append('title')
+        // 数据中每个几何对象都包含 properties 属性
+        .text(d => d.properties.name)
 
     // 绘制第二层内部边界线
     interiors_layer
@@ -186,6 +195,7 @@ async function draw(data,width,height) {
         .enter()
         .append('g')
         .attr('class', 'center_group')
+
         .each(function (d) { // 内部有this引用，不能用箭头函数
             const el = d3.select(this)
             // d.properties中包含该区域的中心点和名字
@@ -216,7 +226,8 @@ async function draw(data,width,height) {
                 .text(d.properties.name)
         })
 
-    let path_list = document.getElementsByClassName("area")
+
+    let path_list = document.getElementsByClassName("area_overlay")
     // console.log(path_list)
     for(let i=0;i<path_list.length;i++){
         // console.log(path_list[i])
@@ -229,6 +240,7 @@ async function draw(data,width,height) {
                 // alert(childs[i].nodeName);
                 svg_div.removeChild(childs[i]);
             }
+            localStorage.setItem("parent_map_name",geo_data.features[0].properties.parent.adcode)
 
             axios.get("http://localhost:9999/svg_map/getByName/" + e.target.getAttribute("name") ).then(res=>{
                 draw(res.data.data,800,800)
@@ -241,13 +253,13 @@ async function draw(data,width,height) {
     // 可缩放
     // 监听滚轮事件 按照比例
     let svgPanel = document.getElementById("svg_map_div")
-    console.log(svgPanel)
+    // console.log(svgPanel)
     // console.log(svgPanel[0])
     // var gridSvg = document.getElementById('grid');
     var scale = 1;
     function zoom(num, e) {
         // alert(1)
-        console.log(scale)
+        // console.log(scale)
         scale *= num;
         svgPanel.style.transform ='scale(' + scale + ')';
     }
@@ -265,6 +277,46 @@ async function draw(data,width,height) {
         // e.detail用来兼容FireFox
         e.wheelDelta > 0 || e.detail > 0 ? zoom(1.06, e) : zoom(0.94, e);
     }
+
+
+    let dragBox = function (drag, wrap) {
+
+        function getCss(ele, prop) {
+            return parseInt(window.getComputedStyle(ele)[prop]);
+        }
+
+        let initX,
+            initY,
+            dragable = false,
+            wrapLeft = getCss(wrap, "left"),
+            wrapRight = getCss(wrap, "top");
+
+        drag.addEventListener("mousedown", function (e) {
+            dragable = true;
+            initX = e.clientX;
+            initY = e.clientY;
+        }, false);
+
+        document.addEventListener("mousemove", function (e) {
+            if (dragable === true ) {
+                var nowX = e.clientX,
+                    nowY = e.clientY,
+                    disX = nowX - initX,
+                    disY = nowY - initY;
+                wrap.style.left = wrapLeft + disX + "px";
+                wrap.style.top = wrapRight + disY + "px";
+            }
+        });
+
+        drag.addEventListener("mouseup", function (e) {
+            dragable = false;
+            wrapLeft = getCss(wrap, "left");
+            wrapRight = getCss(wrap, "top");
+        }, false);
+
+    };
+
+    dragBox(document.querySelector("#svg_map"), document.querySelector("#svg_map_div"));
 
 
 }

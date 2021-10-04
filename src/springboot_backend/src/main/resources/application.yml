@@ -6,4 +6,4 @@ jwt:
   expiration: 360000
   tokenHead: aaaa
 server:
-  port: 9999
+  port: 9998

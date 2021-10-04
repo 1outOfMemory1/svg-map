@@ -1,6 +1,15 @@
 <template>
   <div  style="width: 800px;height: 800px;overflow: hidden;position:relative">
-    <button id="return_lower_level" @click="return_lower_level">返回上一层</button>
+    <div>
+      <button id="return_lower_level" @click="return_lower_level">返回上一层</button>
+
+    </div>
+    <div>
+      <button id="btn_all">全部</button>
+      <button id="btn_level_1">重大风险</button>
+      <button id="btn_level_2">较大风险</button>
+      <button id="btn_level_3">一般风险</button>
+      <button id="btn_level_4">普通风险</button></div>
     <div id="svg_map_div" style="width: 800px;height: 800px;">
     </div>
   </div>
@@ -8,10 +17,11 @@
 </template>
 
 <script>
-import {draw, draw_svg} from "../assets/js/process_geojson"
+import {draw} from "../assets/js/process_geojson"
+// import {china_full_data} from "../assets/geojson/100000";
 
 export default {
-  mounted() {
+  created() {
     // draw_svg(res.data.data,{
     //   width: 1000,
     //   height: 1000,
@@ -26,13 +36,34 @@ export default {
     //     }
     //   ]})
   },
-  created() {
-    this.$http.get("http://localhost:9999/svg_map/getByName/中国" ).then(res=>{
+  mounted() {
+    localStorage.setItem("current_layer",1)
+    // this.$http.get("https://router.haonan.tech:9999/svg_map/getByAdcode/" + "100000").then(res=>{
+    //   draw(china_full_data,800,800)
+    // })
+
+    this.$http.get("https://router.haonan.tech:9999/svg_map/getByAdcode/" + "100000" ).then(res=>{
       draw(res.data.data,800,800)
     })
+    // draw(china_full_data,800,800)
   },
   methods:{
     return_lower_level(){
+      let current_layer = localStorage.getItem("current_layer")
+      if(current_layer === "2"){
+        // let full_china_data = JSON.parse( localStorage.getItem("full_china_data"))
+        // console.log(full_china_data)
+        this.$http.get("https://router.haonan.tech:9999/svg_map/getByAdcode/" + "100000" ).then(res=>{
+          draw(res.data.data,800,800)
+        })
+         /* draw(china_full_data,800,800)*/
+      }else {
+        this.$http.get("https://router.haonan.tech:9999/svg_map/getByAdcode/" + localStorage.getItem("parent_map_name") ).then(res=>{
+          draw(res.data.data,800,800)
+        })
+
+      }
+      localStorage.setItem("current_layer",localStorage.getItem("current_layer") - 1)
 
     }
   }

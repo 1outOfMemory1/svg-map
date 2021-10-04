@@ -9,7 +9,7 @@ public class GeoJsonUtil {
     }
 
     public static void main(String[] args) {
-        JSONObject all = GeoJsonUtil.getGeoJsonFileByFilePath("classpath:full.json");
-        System.out.println(all.getString("山东省"));
+        JSONObject all = GeoJsonUtil.getGeoJsonFileByFilePath("level.json");
+        System.out.println(all);
     }
 }

@@ -6,10 +6,6 @@ export {
 }
 
 
-
-
-
-
 //config模板
 /*
 let config = {
@@ -37,14 +33,6 @@ async function draw(data,width,height) {
     }
 
 
-    const margin = {
-        top: 10,
-        right: 10,
-        bottom: 10,
-        left: 10
-    }
-
-
     const box = d3.select('#svg_map_div')
     const svg = box.append('svg')
         .attr('width', width)
@@ -52,7 +40,7 @@ async function draw(data,width,height) {
         .attr('id', "svg_map")
 
     const g = svg.append('g')
-        .attr('transform', `translate(${margin.top}, ${margin.left})`)
+
 
 
     /*******      1、获得数据          *******/
@@ -79,9 +67,9 @@ async function draw(data,width,height) {
     // console.log('geo_data2', geo_data2) // 和 geo_data 一样
     // console.log('geo_data === geo_data2', geo_data === geo_data2) // false
 
-    // 获取最外层轮廓路径的 GeoJSON
-    const geo_border = topojson.merge(topo_data, topo_data.objects.geo.geometries)
-    // console.log('geo_border', geo_border)
+    // // 获取最外层轮廓路径的 GeoJSON
+    // const geo_border = topojson.merge(topo_data, topo_data.objects.geo.geometries)
+    // // console.log('geo_border', geo_border)
 
     // 获取不包含最外层轮廓的其余边界路径的 GeoJSON，得到
     // 的是一个单一的路径，不存在边界重叠问题
@@ -205,25 +193,34 @@ async function draw(data,width,height) {
 
             if(typeof (d.properties.centroid) !== "undefined"){
                  [x, y] = projection(d.properties.centroid)
-            }else{
-                 [x,y] = [5000,5000]
+            }else if(typeof (d.properties.center) !== "undefined"){
+                 [x,y] =  projection(d.properties.center)
+            }else {
+                [x,y] = [10000,10000]
             }
-
-            // 绘制圆点
-            el.append('circle')
-                .attr('cx', x+15)
-                .attr('cy', y)
-                .attr('r', 2)
-                .attr('stroke', 'none')
-                .attr('fill', '#000')
+            let name = ""
+            if(localStorage.getItem("current_layer") === "1")
+                name = d.properties.name.substr(0,2)
+            else {
+                name = d.properties.name
+            }
+            // // 绘制圆点
+            // el.append('circle')
+            //     .attr('cx', x+15)
+            //     .attr('cy', y)
+            //     .attr('r', 2)
+            //     .attr('stroke', 'none')
+            //     .attr('fill', '#000')
 
             // 添加地名文字
             el
                 .append('text')
                 .attr('x', x -10 )
-                .attr('y', y -15)
+                .attr('y', y)
                 .attr('dy', '0.35em')
-                .text(d.properties.name)
+                .attr("font-size","12px")
+                .text(name)
+                .attr("style","user-select: none;")
         })
 
 
@@ -234,17 +231,38 @@ async function draw(data,width,height) {
         // path_list[i].getAttribute()
         path_list[i].addEventListener("click", (e)=>{
             // console.log(e.target.getAttribute("name"))
-            let svg_div = document.getElementById("svg_map_div")
-            let childs =svg_div.childNodes
-            for(let i = childs.length - 1; i >= 0; i--) {
-                // alert(childs[i].nodeName);
-                svg_div.removeChild(childs[i]);
-            }
-            localStorage.setItem("parent_map_name",geo_data.features[0].properties.parent.adcode)
 
-            axios.get("http://localhost:9999/svg_map/getByName/" + e.target.getAttribute("name") ).then(res=>{
-                draw(res.data.data,800,800)
-            })
+            if(localStorage.getItem("current_layer") === "1"){
+                localStorage.setItem("current_layer",2)
+                localStorage.setItem("parent_map_name",geo_data.features[0].properties.parent.adcode)
+
+                axios.get("https://router.haonan.tech:9999/svg_map/getByName/" + e.target.getAttribute("name") ).then(res=>{
+                    draw(res.data.data,800,800)
+                })
+                let svg_div = document.getElementById("svg_map_div")
+                let childs =svg_div.childNodes
+                for(let i = childs.length - 1; i >= 0; i--) {
+                    // alert(childs[i].nodeName);
+                    svg_div.removeChild(childs[i]);
+                }
+            }else if(localStorage.getItem("current_layer") === "2") {
+                localStorage.setItem("parent_map_name",geo_data.features[0].properties.parent.adcode)
+
+                localStorage.setItem("current_layer",3)
+                axios.get("https://router.haonan.tech:9999/svg_map/getByName/" + e.target.getAttribute("name") ).then(res=>{
+                    draw(res.data.data,800,800)
+                })
+                let svg_div = document.getElementById("svg_map_div")
+                let childs =svg_div.childNodes
+                for(let i = childs.length - 1; i >= 0; i--) {
+                    // alert(childs[i].nodeName);
+                    svg_div.removeChild(childs[i]);
+                }
+            }else if(localStorage.getItem("current_layer") === "3"){
+
+            }
+
+
         })
     }
 
@@ -259,7 +277,7 @@ async function draw(data,width,height) {
     var scale = 1;
     function zoom(num, e) {
         // alert(1)
-        // console.log(scale)
+        console.log(scale)
         scale *= num;
         svgPanel.style.transform ='scale(' + scale + ')';
     }
@@ -325,7 +343,7 @@ async function draw(data,width,height) {
 
 function draw_svg(geojsonData,config){
 
-    // draw("http://localhost:9999/svg_map/getByName/"+ "天津市",800,800)
+    // draw("https://router.haonan.tech:9999/svg_map/getByName/"+ "天津市",800,800)
 
     // console.log(geojsonData)
     // console.log(config)

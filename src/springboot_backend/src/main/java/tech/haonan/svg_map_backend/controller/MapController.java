@@ -22,17 +22,20 @@ import java.net.URL;
 public class MapController {
 
 
-    @ApiOperation(value = "获取所有地图数据")
-    @GetMapping("/getAllMap")
-    public CommonResponse getAllMap(){
-        return CommonResponse.success("获取全部地图数据成功", JsonUtil.readJsonFile("classpath:full.json"));
+    @ApiOperation(value = "获取所有地图adcode数据")
+    @GetMapping("/getAllMapAdcode")
+    public CommonResponse getAllMapAdcode(){
+        return CommonResponse.success("获取所有地图adcode数据", JsonUtil.readJsonFile("allAdcode.json"));
     }
 
     @ApiOperation(value = "根据名称获取地图数据")
     @GetMapping("/getByName/{map_name}")
     public CommonResponse getByName(@PathVariable("map_name") String map_name){
-        JSONObject all = GeoJsonUtil.getGeoJsonFileByFilePath("classpath:allAdcode.json");
-        JSONObject result = GeoJsonUtil.getGeoJsonFileByFilePath( "classpath:geojson/" +all.getString(map_name) + ".json");
+        System.out.println(map_name);
+        JSONObject all = GeoJsonUtil.getGeoJsonFileByFilePath("allAdcode.json");
+        JSONObject result = GeoJsonUtil.getGeoJsonFileByFilePath( "geojson/" +all.get(map_name) + ".json");
+        System.out.println(all );
+
         if(result != null)
             return CommonResponse.success("获取成功", result );
         else
@@ -44,7 +47,7 @@ public class MapController {
     @ApiOperation(value = "根据名称获取地图数据")
     @GetMapping("/getByAdcode/{code}")
     public CommonResponse getByAdcode(@PathVariable("code") String code){
-        JSONObject result =GeoJsonUtil.getGeoJsonFileByFilePath( "classpath:geojson/" +code + ".json");
+        JSONObject result =GeoJsonUtil.getGeoJsonFileByFilePath( "geojson/" +code + ".json");
         if(result != null)
             return CommonResponse.success("获取成功", result );
         else
